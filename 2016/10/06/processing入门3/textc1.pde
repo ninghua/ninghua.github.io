@@ -2,9 +2,10 @@ PGraphics pg;
 color PGRAPHICS_COLOR = color(0);
 
 void setup() {
-  size(1100, 400, JAVA2D);
+  size(480, 200, JAVA2D);
   background(255);
   smooth();
+  //noLoop();
   //font = loadFont("Arial-BoldMT-48.vlw");
   //blendMode(ADD);
  
@@ -12,7 +13,7 @@ void setup() {
   pg = createGraphics(width, height, JAVA2D);
   pg.beginDraw();
 //  pg.textFont(font);
-  pg.textSize(200);
+  pg.textSize(100);
   pg.textAlign(CENTER, CENTER);
   pg.fill(PGRAPHICS_COLOR);
   pg.text("NINGHUA", pg.width/2, pg.height/2);
@@ -22,13 +23,13 @@ void setup() {
 
 void draw() {
 //background(255);  
-for (int i = 0; i < 9000; i++){  
+for (int i = 0; i < 900; i++){  
 
 strokeWeight (random (0.25, 0.7));
 float x1 = random(width);
 float y1 = random(height);
-float x2 = x1+random(-50,50);
-float y2 = y1+random(-50,50);
+float x2 = x1+random(-20,20);
+float y2 = y1+random(-20,20);
 color c1 = pg.get( int(x1), int(y1) );
 color c2 = pg.get( int(x2), int(y2) );
 if ( (c1 == PGRAPHICS_COLOR) && (c2 == PGRAPHICS_COLOR) ) {
