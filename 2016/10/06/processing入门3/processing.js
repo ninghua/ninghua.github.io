@@ -1,298 +1,447 @@
-<!doctype html>
+;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// build script for generating processing.js
 
+var Browser = {
+  isDomPresent: true,
+  navigator: navigator,
+  window: window,
+  document: document,
+  ajax: function(url) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, false);
+    if (xhr.overrideMimeType) {
+      xhr.overrideMimeType("text/plain");
+    }
+    xhr.setRequestHeader("If-Modified-Since", "Fri, 01 Jan 1960 00:00:00 GMT");
+    xhr.send(null);
+    // failed request?
+    if (xhr.status !== 200 && xhr.status !== 0) { throw ("XMLHttpRequest failed, status code " + xhr.status); }
+    return xhr.responseText;
+  }
+};
 
+window.Processing = require('./src/')(Browser);
 
-  
+},{"./src/":27}],2:[function(require,module,exports){
+module.exports={
+  "name": "Processing.js",
+  "version": "1.4.8",
+  "dependencies": {
+    "argv": "~0.0.2",
+    "browserify": "~2.18.1",
+    "express": "~3.3.3",
+    "node-minify": "~0.7.3",
+    "nunjucks": "~0.1.9",
+    "open": "0.0.3"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-cli": "~0.1.8",
+    "grunt-contrib-jshint": "~0.4.3"
+  }
+}
 
+},{}],3:[function(require,module,exports){
+/**
+* A ObjectIterator is an iterator wrapper for objects. If passed object contains
+* the iterator method, the object instance will be replaced by the result returned by
+* this method call. If passed object is an array, the ObjectIterator instance iterates
+* through its items.
+*
+* @param {Object} obj The object to be iterated.
+*/
+module.exports = function ObjectIterator(obj) {
+  if (obj instanceof Array) {
+    // iterate through array items
+    var index = -1;
+    this.hasNext = function() {
+      return ++index < obj.length;
+    };
+    this.next = function() {
+      return obj[index];
+    };
+  } else if (obj.iterator instanceof Function) {
+    return obj.iterator();
+  } else {
+    throw "Unable to iterate: " + obj;
+  }
+};
 
-<html class="theme-next pisces use-motion">
-<head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+},{}],4:[function(require,module,exports){
+/**
+ * Processing.js environment constants
+ */
+module.exports = {
+    X: 0,
+    Y: 1,
+    Z: 2,
 
+    R: 3,
+    G: 4,
+    B: 5,
+    A: 6,
 
+    U: 7,
+    V: 8,
 
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
+    NX: 9,
+    NY: 10,
+    NZ: 11,
 
+    EDGE: 12,
 
+    // Stroke
+    SR: 13,
+    SG: 14,
+    SB: 15,
+    SA: 16,
 
+    SW: 17,
 
+    // Transformations (2D and 3D)
+    TX: 18,
+    TY: 19,
+    TZ: 20,
 
+    VX: 21,
+    VY: 22,
+    VZ: 23,
+    VW: 24,
 
+    // Material properties
+    AR: 25,
+    AG: 26,
+    AB: 27,
 
+    DR: 3,
+    DG: 4,
+    DB: 5,
+    DA: 6,
 
+    SPR: 28,
+    SPG: 29,
+    SPB: 30,
 
+    SHINE: 31,
 
+    ER: 32,
+    EG: 33,
+    EB: 34,
 
+    BEEN_LIT: 35,
 
-  
-  
-  <link href="vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+    VERTEX_FIELD_COUNT: 36,
 
+    // Renderers
+    P2D:    1,
+    JAVA2D: 1,
+    WEBGL:  2,
+    P3D:    2,
+    OPENGL: 2,
+    PDF:    0,
+    DXF:    0,
 
+    // Platform IDs
+    OTHER:   0,
+    WINDOWS: 1,
+    MAXOSX:  2,
+    LINUX:   3,
 
+    EPSILON: 0.0001,
 
-  
-  
-  
-  
+    MAX_FLOAT:  3.4028235e+38,
+    MIN_FLOAT: -3.4028235e+38,
+    MAX_INT:    2147483647,
+    MIN_INT:   -2147483648,
 
-  
-    
-    
-  
+    PI:         Math.PI,
+    TWO_PI:     2 * Math.PI,
+    TAU:        2 * Math.PI,
+    HALF_PI:    Math.PI / 2,
+    THIRD_PI:   Math.PI / 3,
+    QUARTER_PI: Math.PI / 4,
 
-  
+    DEG_TO_RAD: Math.PI / 180,
+    RAD_TO_DEG: 180 / Math.PI,
 
-  
+    WHITESPACE: " \t\n\r\f\u00A0",
 
-  
+    // Color modes
+    RGB:   1,
+    ARGB:  2,
+    HSB:   3,
+    ALPHA: 4,
+    CMYK:  5,
 
-  
+    // Image file types
+    TIFF:  0,
+    TARGA: 1,
+    JPEG:  2,
+    GIF:   3,
 
-  
-    
-    
-    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  
+    // Filter/convert types
+    BLUR:      11,
+    GRAY:      12,
+    INVERT:    13,
+    OPAQUE:    14,
+    POSTERIZE: 15,
+    THRESHOLD: 16,
+    ERODE:     17,
+    DILATE:    18,
 
+    // Blend modes
+    REPLACE:    0,
+    BLEND:      1 << 0,
+    ADD:        1 << 1,
+    SUBTRACT:   1 << 2,
+    LIGHTEST:   1 << 3,
+    DARKEST:    1 << 4,
+    DIFFERENCE: 1 << 5,
+    EXCLUSION:  1 << 6,
+    MULTIPLY:   1 << 7,
+    SCREEN:     1 << 8,
+    OVERLAY:    1 << 9,
+    HARD_LIGHT: 1 << 10,
+    SOFT_LIGHT: 1 << 11,
+    DODGE:      1 << 12,
+    BURN:       1 << 13,
 
+    // Color component bit masks
+    ALPHA_MASK: 0xff000000,
+    RED_MASK:   0x00ff0000,
+    GREEN_MASK: 0x0000ff00,
+    BLUE_MASK:  0x000000ff,
 
+    // Projection matrices
+    CUSTOM:       0,
+    ORTHOGRAPHIC: 2,
+    PERSPECTIVE:  3,
 
+    // Shapes
+    POINT:          2,
+    POINTS:         2,
+    LINE:           4,
+    LINES:          4,
+    TRIANGLE:       8,
+    TRIANGLES:      9,
+    TRIANGLE_STRIP: 10,
+    TRIANGLE_FAN:   11,
+    QUAD:           16,
+    QUADS:          16,
+    QUAD_STRIP:     17,
+    POLYGON:        20,
+    PATH:           21,
+    RECT:           30,
+    ELLIPSE:        31,
+    ARC:            32,
+    SPHERE:         40,
+    BOX:            41,
 
+    GROUP:          0,
+    PRIMITIVE:      1,
+    //PATH:         21, // shared with Shape PATH
+    GEOMETRY:       3,
 
-<link href="vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+    // Shape Vertex
+    VERTEX:        0,
+    BEZIER_VERTEX: 1,
+    CURVE_VERTEX:  2,
+    BREAK:         3,
+    CLOSESHAPE:    4,
 
-<link href="css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+    // Shape closing modes
+    OPEN:  1,
+    CLOSE: 2,
 
+    // Shape drawing modes
+    CORNER:          0, // Draw mode convention to use (x, y) to (width, height)
+    CORNERS:         1, // Draw mode convention to use (x1, y1) to (x2, y2) coordinates
+    RADIUS:          2, // Draw mode from the center, and using the radius
+    CENTER_RADIUS:   2, // Deprecated! Use RADIUS instead
+    CENTER:          3, // Draw from the center, using second pair of values as the diameter
+    DIAMETER:        3, // Synonym for the CENTER constant. Draw from the center
+    CENTER_DIAMETER: 3, // Deprecated! Use DIAMETER instead
 
-  <meta name="keywords" content="Hexo, NexT" />
+    // Text vertical alignment modes
+    BASELINE: 0,   // Default vertical alignment for text placement
+    TOP:      101, // Align text to the top
+    BOTTOM:   102, // Align text from the bottom, using the baseline
 
+    // UV Texture coordinate modes
+    NORMAL:     1,
+    NORMALIZED: 1,
+    IMAGE:      2,
 
+    // Text placement modes
+    MODEL: 4,
+    SHAPE: 5,
 
+    // Stroke modes
+    SQUARE:  'butt',
+    ROUND:   'round',
+    PROJECT: 'square',
+    MITER:   'miter',
+    BEVEL:   'bevel',
 
+    // Lighting modes
+    AMBIENT:     0,
+    DIRECTIONAL: 1,
+    //POINT:     2, Shared with Shape constant
+    SPOT:        3,
 
+    // Key constants
 
+    // Both key and keyCode will be equal to these values
+    BACKSPACE: 8,
+    TAB:       9,
+    ENTER:     10,
+    RETURN:    13,
+    ESC:       27,
+    DELETE:    127,
+    CODED:     0xffff,
 
+    // p.key will be CODED and p.keyCode will be this value
+    SHIFT:     16,
+    CONTROL:   17,
+    ALT:       18,
+    CAPSLK:    20,
+    PGUP:      33,
+    PGDN:      34,
+    END:       35,
+    HOME:      36,
+    LEFT:      37,
+    UP:        38,
+    RIGHT:     39,
+    DOWN:      40,
+    F1:        112,
+    F2:        113,
+    F3:        114,
+    F4:        115,
+    F5:        116,
+    F6:        117,
+    F7:        118,
+    F8:        119,
+    F9:        120,
+    F10:       121,
+    F11:       122,
+    F12:       123,
+    NUMLK:     144,
+    META:      157,
+    INSERT:    155,
 
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+    // Cursor types
+    ARROW:    'default',
+    CROSS:    'crosshair',
+    HAND:     'pointer',
+    MOVE:     'move',
+    TEXT:     'text',
+    WAIT:     'wait',
+    NOCURSOR: "url('data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='), auto",
 
+    // Hints
+    DISABLE_OPENGL_2X_SMOOTH:     1,
+    ENABLE_OPENGL_2X_SMOOTH:     -1,
+    ENABLE_OPENGL_4X_SMOOTH:      2,
+    ENABLE_NATIVE_FONTS:          3,
+    DISABLE_DEPTH_TEST:           4,
+    ENABLE_DEPTH_TEST:           -4,
+    ENABLE_DEPTH_SORT:            5,
+    DISABLE_DEPTH_SORT:          -5,
+    DISABLE_OPENGL_ERROR_REPORT:  6,
+    ENABLE_OPENGL_ERROR_REPORT:  -6,
+    ENABLE_ACCURATE_TEXTURES:     7,
+    DISABLE_ACCURATE_TEXTURES:   -7,
+    HINT_COUNT:                  10,
 
+    // PJS defined constants
+    SINCOS_LENGTH:      720,       // every half degree
+    PRECISIONB:         15,        // fixed point precision is limited to 15 bits!!
+    PRECISIONF:         1 << 15,
+    PREC_MAXVAL:        (1 << 15) - 1,
+    PREC_ALPHA_SHIFT:   24 - 15,
+    PREC_RED_SHIFT:     16 - 15,
+    NORMAL_MODE_AUTO:   0,
+    NORMAL_MODE_SHAPE:  1,
+    NORMAL_MODE_VERTEX: 2,
+    MAX_LIGHTS:         8
+};
 
+},{}],5:[function(require,module,exports){
+/**
+ * Processing.js default scope
+ */
+module.exports = function(options) {
 
+  // Building defaultScope. Changing of the prototype protects
+  // internal Processing code from the changes in defaultScope
+  function DefaultScope() {}
+  DefaultScope.prototype = options.PConstants;
 
+  var defaultScope = new DefaultScope();
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="技术小栈">
-<meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="技术小栈">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="技术小栈">
+  // copy over all known Object types and helper objects
+  Object.keys(options).forEach(function(prop) {
+    defaultScope[prop] = options[prop];
+  });
 
+  ////////////////////////////////////////////////////////////////////////////
+  // Class inheritance helper methods
+  ////////////////////////////////////////////////////////////////////////////
 
-
-<script type="text/javascript" id="hexo.configuration">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    scheme: 'Pisces',
-    sidebar: {"position":"right","display":"post"},
-    fancybox: true,
-    motion: true,
-    duoshuo: {
-      userId: 0,
-      author: '博主'
+  defaultScope.defineProperty = function(obj, name, desc) {
+    if("defineProperty" in Object) {
+      Object.defineProperty(obj, name, desc);
+    } else {
+      if (desc.hasOwnProperty("get")) {
+        obj.__defineGetter__(name, desc.get);
+      }
+      if (desc.hasOwnProperty("set")) {
+        obj.__defineSetter__(name, desc.set);
+      }
     }
   };
-</script>
 
-
-
-
-  <link rel="canonical" href="http://yoursite.com/"/>
-
-  <title> 技术小栈 </title>
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
-
-  
-
-
-
-
-
-
-
-
-
-
-  
-  
-    
-  
-
-  <div class="container one-collumn sidebar-position-right 
-   page-home 
- ">
-    <div class="headband"></div>
-
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-meta ">
-  
-
-  <div class="custom-logo-site-title">
-    <a href="/"  class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <span class="site-title">技术小栈</span>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-  </div>
-  <p class="site-subtitle"></p>
-</div>
-
-<div class="site-nav-toggle">
-  <button>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-    <span class="btn-bar"></span>
-  </button>
-</div>
-
-<nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            归档
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            标签
-          </a>
-        </li>
-      
-
-      
-    </ul>
-  
-
-  
-</nav>
-
- </div>
-    </header>
-
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
-  <section id="posts" class="posts-expand">
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="2016/10/06/processing入门3/processing/" itemprop="url">
-                  未命名
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-10-06T04:25:46+08:00" content="2016-10-06">
-              2016-10-06
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="2016/10/06/processing入门3/processing/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/06/processing入门3/processing/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require==&quot;function&quot;&amp;&amp;require;if(!u&amp;&amp;a)return a(o,!0);if(i)return i(o,!0);throw new Error(&quot;Cannot find module &apos;&quot;+o+&quot;&apos;&quot;)}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require==&quot;function&quot;&amp;&amp;require;for(var o=0;o<r.length;o++)s(r[o]);return 1="" 2="" 8="" 15="" 16="" 24="" 180="" 200="" 1960="" s})({1:[function(require,module,exports){="" build="" script="" for="" generating="" processing.js="" var="" browser="{" isdompresent:="" true,="" navigator:="" navigator,="" window:="" window,="" document:="" document,="" ajax:="" function(url)="" {="" xhr="new" xmlhttprequest();="" xhr.open("get",="" url,="" false);="" if="" (xhr.overridemimetype)="" xhr.overridemimetype("text="" plain");="" }="" xhr.setrequestheader("if-modified-since",="" "fri,="" 01="" jan="" 00:00:00="" gmt");="" xhr.send(null);="" failed="" request?="" (xhr.status="" !="=" &&="" xhr.status="" 0)="" throw="" ("xmlhttprequest="" failed,="" status="" code="" "="" +="" xhr.status);="" return="" xhr.responsetext;="" };="" window.processing="require(&apos;./src/&apos;)(Browser);" },{".="" src="" ":27}],2:[function(require,module,exports){="" module.exports="{" "name":="" "processing.js",="" "version":="" "1.4.8",="" "dependencies":="" "argv":="" "~0.0.2",="" "browserify":="" "~2.18.1",="" "express":="" "~3.3.3",="" "node-minify":="" "~0.7.3",="" "nunjucks":="" "~0.1.9",="" "open":="" "0.0.3"="" },="" "devdependencies":="" "grunt":="" "~0.4.1",="" "grunt-cli":="" "~0.1.8",="" "grunt-contrib-jshint":="" "~0.4.3"="" },{}],3:[function(require,module,exports){="" **="" *="" a="" objectiterator="" is="" an="" iterator="" wrapper="" objects.="" passed="" object="" contains="" the="" method,="" instance="" will="" be="" replaced="" by="" result="" returned="" this="" method="" call.="" array,="" iterates="" through="" its="" items.="" @param="" {object}="" obj="" to="" iterated.="" objectiterator(obj)="" (obj="" instanceof="" array)="" iterate="" array="" items="" index="-1;" this.hasnext="function()" ++index="" <="" obj.length;="" this.next="function()" obj[index];="" else="" (obj.iterator="" function)="" obj.iterator();="" "unable="" iterate:="" obj;="" },{}],4:[function(require,module,exports){="" environment="" constants="" x:="" 0,="" y:="" 1,="" z:="" 2,="" r:="" 3,="" g:="" 4,="" b:="" 5,="" a:="" 6,="" u:="" 7,="" v:="" 8,="" nx:="" 9,="" ny:="" 10,="" nz:="" 11,="" edge:="" 12,="" stroke="" sr:="" 13,="" sg:="" 14,="" sb:="" 15,="" sa:="" 16,="" sw:="" 17,="" transformations="" (2d="" and="" 3d)="" tx:="" 18,="" ty:="" 19,="" tz:="" 20,="" vx:="" 21,="" vy:="" 22,="" vz:="" 23,="" vw:="" 24,="" material="" properties="" ar:="" 25,="" ag:="" 26,="" ab:="" 27,="" dr:="" dg:="" db:="" da:="" spr:="" 28,="" spg:="" 29,="" spb:="" 30,="" shine:="" 31,="" er:="" 32,="" eg:="" 33,="" eb:="" 34,="" been_lit:="" 35,="" vertex_field_count:="" 36,="" renderers="" p2d:="" java2d:="" webgl:="" p3d:="" opengl:="" pdf:="" dxf:="" platform="" ids="" other:="" windows:="" maxosx:="" linux:="" epsilon:="" 0.0001,="" max_float:="" 3.4028235e+38,="" min_float:="" -3.4028235e+38,="" max_int:="" 2147483647,="" min_int:="" -2147483648,="" pi:="" math.pi,="" two_pi:="" tau:="" half_pi:="" math.pi="" third_pi:="" quarter_pi:="" deg_to_rad:="" 180,="" rad_to_deg:="" whitespace:="" \t\n\r\f\u00a0",="" color="" modes="" rgb:="" argb:="" hsb:="" alpha:="" cmyk:="" image="" file="" types="" tiff:="" targa:="" jpeg:="" gif:="" filter="" convert="" blur:="" gray:="" invert:="" opaque:="" posterize:="" threshold:="" erode:="" dilate:="" blend="" replace:="" blend:="" <<="" add:="" subtract:="" lightest:="" darkest:="" difference:="" exclusion:="" multiply:="" screen:="" overlay:="" hard_light:="" soft_light:="" dodge:="" burn:="" component="" bit="" masks="" alpha_mask:="" 0xff000000,="" red_mask:="" 0x00ff0000,="" green_mask:="" 0x0000ff00,="" blue_mask:="" 0x000000ff,="" projection="" matrices="" custom:="" orthographic:="" perspective:="" shapes="" point:="" points:="" line:="" lines:="" triangle:="" triangles:="" triangle_strip:="" triangle_fan:="" quad:="" quads:="" quad_strip:="" polygon:="" path:="" rect:="" ellipse:="" arc:="" sphere:="" 40,="" box:="" 41,="" group:="" primitive:="" shared="" with="" shape="" path="" geometry:="" vertex="" vertex:="" bezier_vertex:="" curve_vertex:="" break:="" closeshape:="" closing="" open:="" close:="" drawing="" corner:="" draw="" mode="" convention="" use="" (x,="" y)="" (width,="" height)="" corners:="" (x1,="" y1)="" (x2,="" y2)="" coordinates="" radius:="" from="" center,="" using="" radius="" center_radius:="" deprecated!="" instead="" center:="" second="" pair="" of="" values="" as="" diameter="" diameter:="" synonym="" center="" constant.="" center_diameter:="" text="" vertical="" alignment="" baseline:="" default placement="" top:="" 101,="" align="" top="" bottom:="" 102,="" bottom,="" baseline="" uv="" texture="" coordinate="" normal:="" normalized:="" image:="" model:="" shape:="" square:="" 'butt',="" round:="" 'round',="" project:="" 'square',="" miter:="" 'miter',="" bevel:="" 'bevel',="" lighting="" ambient:="" directional:="" constant="" spot:="" key="" both="" keycode="" equal="" these="" backspace:="" tab:="" enter:="" return:="" esc:="" delete:="" 127,="" coded:="" 0xffff,="" p.key="" coded="" p.keycode="" value="" shift:="" control:="" alt:="" capslk:="" pgup:="" pgdn:="" end:="" home:="" left:="" 37,="" up:="" 38,="" right:="" 39,="" down:="" f1:="" 112,="" f2:="" 113,="" f3:="" 114,="" f4:="" 115,="" f5:="" 116,="" f6:="" 117,="" f7:="" 118,="" f8:="" 119,="" f9:="" 120,="" f10:="" 121,="" f11:="" 122,="" f12:="" 123,="" numlk:="" 144,="" meta:="" 157,="" insert:="" 155,="" cursor="" arrow:="" 'default',="" cross:="" 'crosshair',="" hand:="" 'pointer',="" move:="" 'move',="" text:="" 'text',="" wait:="" 'wait',="" nocursor:="" "url('data:image="" gif;base64,r0lgodlhaqabaiaaap="" waaach5baeaaaaalaaaaaabaaeaaaicraeaow="=&apos;)," auto",="" hints="" disable_opengl_2x_smooth:="" enable_opengl_2x_smooth:="" -1,="" enable_opengl_4x_smooth:="" enable_native_fonts:="" disable_depth_test:="" enable_depth_test:="" -4,="" enable_depth_sort:="" disable_depth_sort:="" -5,="" disable_opengl_error_report:="" enable_opengl_error_report:="" -6,="" enable_accurate_textures:="" disable_accurate_textures:="" -7,="" hint_count:="" pjs="" defined="" sincos_length:="" 720,="" every="" half="" degree="" precisionb:="" fixed="" point="" precision="" limited="" bits!!="" precisionf:="" prec_maxval:="" (1="" 15)="" -="" prec_alpha_shift:="" prec_red_shift:="" normal_mode_auto:="" normal_mode_shape:="" normal_mode_vertex:="" max_lights:="" },{}],5:[function(require,module,exports){="" scope="" building="" defaultscope.="" changing="" prototype="" protects="" internal="" processing="" changes="" in="" defaultscope="" function="" defaultscope()="" {}="" defaultscope.prototype="options.PConstants;" defaultscope();="" copy="" over="" all="" known="" helper="" objects="" object.keys(options).foreach(function(prop)="" defaultscope[prop]="options[prop];" });="" class="" inheritance="" methods="" defaultscope.defineproperty="function(obj," name,="" desc)="" if("defineproperty"="" object)="" object.defineproperty(obj,="" desc);="" (desc.hasownproperty("get"))="" obj.__definegetter__(name,="" desc.get);="" (desc.hasownproperty("set"))="" obj.__definesetter__(name,="" desc.set);="" overloading,="" part="" overloadbaseclassfunction(object,="" basefn)="" (!object.hasownproperty(name)="" ||="" typeof="" object[name]="" 'function')="" not="" or="" just="" inherited="" object.prototype="" return;="" fn="object[name];" ("$overloads"="" fn)="" already="" overloaded="" (see="" defaultscope.addmethod)="" let's="" change="" fallback="" fn.$defaultoverload="basefn;" (!("$overloads"="" fn.length="==" basefn.length)="" special="" case="" when="" we="" overriding="" overloads,="" defaultoverload;="" inherit="" base="" overloads="" speed="" up="" things="" overloads[fn.length]="fn;" defaultoverload="basefn.$defaultOverload;" overloads[basefn.length]="basefn;" hubfn="function()" ("$methodargsindex"="" arguments.length=""> hubfn.$methodArgsIndex ?
+  /**
+   * class overloading, part 1
+   */
+  function overloadBaseClassFunction(object, name, basefn) {
+    if (!object.hasOwnProperty(name) || typeof object[name] !== 'function') {
+      // object method is not a function or just inherited from Object.prototype
+      object[name] = basefn;
+      return;
+    }
+    var fn = object[name];
+    if ("$overloads" in fn) {
+      // the object method already overloaded (see defaultScope.addMethod)
+      // let's just change a fallback method
+      fn.$defaultOverload = basefn;
+      return;
+    }
+    if (!("$overloads" in basefn) && fn.length === basefn.length) {
+      // special case when we just overriding the method
+      return;
+    }
+    var overloads, defaultOverload;
+    if ("$overloads" in basefn) {
+      // let's inherit base class overloads to speed up things
+      overloads = basefn.$overloads.slice(0);
+      overloads[fn.length] = fn;
+      defaultOverload = basefn.$defaultOverload;
+    } else {
+      overloads = [];
+      overloads[basefn.length] = basefn;
+      overloads[fn.length] = fn;
+      defaultOverload = fn;
+    }
+    var hubfn = function() {
+      var fn = hubfn.$overloads[arguments.length] ||
+               ("$methodArgsIndex" in hubfn && arguments.length > hubfn.$methodArgsIndex ?
                hubfn.$overloads[hubfn.$methodArgsIndex] : null) ||
                hubfn.$defaultOverload;
       return fn.apply(this, arguments);
     };
     hubfn.$overloads = overloads;
-    if (&quot;$methodArgsIndex&quot; in basefn) {
+    if ("$methodArgsIndex" in basefn) {
       hubfn.$methodArgsIndex = basefn.$methodArgsIndex;
     }
     hubfn.$defaultOverload = defaultOverload;
@@ -319,14 +468,14 @@
 
     var properties = [];
     for (var propertyName in baseClass) {
-      if (typeof baseClass[propertyName] === &apos;function&apos;) {
+      if (typeof baseClass[propertyName] === 'function') {
         overloadBaseClassFunction(subClass, propertyName, baseClass[propertyName]);
-      } else if(propertyName.charAt(0) !== &quot;$&quot; &amp;&amp; !(propertyName in subClass)) {
+      } else if(propertyName.charAt(0) !== "$" && !(propertyName in subClass)) {
         // Delaying the properties extension due to the IE9 bug (see #918).
         properties.push(propertyName);
       }
     }
-    while (properties.length &gt; 0) {
+    while (properties.length > 0) {
       extendGetterSetter(properties.shift());
     }
 
@@ -343,7 +492,7 @@
       path.push(self);
       base = self;
     }
-    while (path.length &gt; 0) {
+    while (path.length > 0) {
       path.pop().$self=base;
     }
   };
@@ -368,12 +517,12 @@
     if (existingfn || hasMethodArgs) {
       var args = fn.length;
       // builds the overload methods table
-      if (&quot;$overloads&quot; in existingfn) {
+      if ("$overloads" in existingfn) {
         existingfn.$overloads[args] = fn;
       } else {
         var hubfn = function() {
           var fn = hubfn.$overloads[arguments.length] ||
-                   (&quot;$methodArgsIndex&quot; in hubfn &amp;&amp; arguments.length &gt; hubfn.$methodArgsIndex ?
+                   ("$methodArgsIndex" in hubfn && arguments.length > hubfn.$methodArgsIndex ?
                    hubfn.$overloads[hubfn.$methodArgsIndex] : null) ||
                    hubfn.$defaultOverload;
           return fn.apply(this, arguments);
@@ -398,51 +547,269 @@
 
   // internal helper function
   function isNumericalJavaType(type) {
-    if (typeof type !== &quot;string&quot;) {
+    if (typeof type !== "string") {
       return false;
     }
-    return [&quot;byte&quot;, &quot;int&quot;, &quot;char&quot;, &quot;color&quot;, &quot;float&quot;, &quot;long&quot;, &quot;double&quot;].indexOf(type) !== -1;
+    return ["byte", "int", "char", "color", "float", "long", "double"].indexOf(type) !== -1;
   }
 
   /**
-   * Java&apos;s arrays are pre-filled when declared with
+   * Java's arrays are pre-filled when declared with
    * an initial size, but no content. JS arrays are not.
    */
   defaultScope.createJavaArray = function(type, bounds) {
     var result = null,
         defaultValue = null;
-    if (typeof type === &quot;string&quot;) {
-      if (type === &quot;boolean&quot;) {
+    if (typeof type === "string") {
+      if (type === "boolean") {
         defaultValue = false;
       } else if (isNumericalJavaType(type)) {
         defaultValue = 0;
       }
     }
-    if (typeof bounds[0] === &apos;number&apos;) {
+    if (typeof bounds[0] === 'number') {
       var itemsCount = 0 | bounds[0];
-      if (bounds.length <= 200="" 1960="" 1)="" {="" result="[];" result.length="itemsCount;" for="" (var="" i="0;" <="" itemscount;="" ++i)="" result[i]="defaultValue;" }="" else="" var="" newbounds="bounds.slice(1);" j="0;" ++j)="" result.push(defaultscope.createjavaarray(type,="" newbounds));="" return="" result;="" };="" screenwidth="" and="" screenheight="" are="" shared="" by="" all="" instances.="" the="" width="" height="" of="" browser's="" viewport.="" defaultscope.defineproperty(defaultscope,="" 'screenwidth',="" get:="" function()="" window.innerwidth;="" });="" 'screenheight',="" window.innerheight;="" defaultscope;="" },{}],6:[function(require,module,exports){="" **="" *="" finalise="" processing.js="" object.="" module.exports="function" finalizeprocessing(processing,="" options)="" unpack="" options="" window="options.window," document="options.document," xmlhttprequest="window.XMLHttpRequest," noop="options.noop," isdompresent="options.isDOMPresent," version="options.version," undef;="" versioning="" processing.version="(version" ?="" :="" "@dev-version@");="" share="" lib="" space="" processing.lib="{};" external="" libraries="" can="" be="" added="" to="" global="" processing="" objects="" with="" `registerlibrary`="" function.="" processing.registerlibrary="function(name," library)="" processing.lib[name]="library;" if(library.hasownproperty("init"))="" library.init(defaultscope);="" this="" is="" object="" that="" acts="" as="" our="" papplet.="" called="" processing.sketch()="" or="" processing.sketch(function)="" in="" which="" case="" function="" must="" an="" already-compiled-to-js="" sketch="" processing.sketch="function(attachFunction)" this.attachfunction="attachFunction;" this.options="{" pauseonblur:="" false,="" globalkeyevents:="" false="" optional="" event="" hooks:="" onload="" -="" parsing="" preloading="" done,="" before="" starts="" onsetup="" setup()="" has="" been="" called,="" first="" draw()="" onpause="" noloop()="" pausing="" draw="" loop onloop="" loop()="" resuming="" onframestart="" about="" begin="" onframeend="" finished="" onexit="" exit()="" done="" being="" this.onload="noop;" this.onsetup="noop;" this.onpause="noop;" this.onloop="noop;" this.onframestart="noop;" this.onframeend="noop;" this.onexit="noop;" this.params="{};" this.imagecache="{" pending:="" 0,="" images:="" {},="" opera="" requires="" special="" administration="" operacache:="" specify="" img="" arg="" if="" image="" already="" loaded="" dom,="" otherwise="" href="" will="" get="" loaded.="" add:="" function(href,="" img)="" prevent="" muliple="" loads="" image,="" it="" gets="" preloaded="" more="" than="" once,="" via="" js="" then="" preloaded.="" (this.images[href])="" return;="" (!isdompresent)="" this.images[href]="null;" no="" kick-off="" a="" background="" load="" (!img)="" image();="" img.onload="(function(owner)" owner.pending--;="" }(this));="" this.pending++;="" img.src="href;" not="" images="" until="" they="" inserted="" into="" dom.="" (window.opera)="" div="document.createElement(" div");"="" div.appendchild(img);="" we="" can't="" use="" "display:="" none",="" since="" makes="" invisible,="" thus="" div.style.position="absolute" ;="" div.style.opacity="0;" div.style.width="1px" div.style.height="1px" (!this.operacache[href])="" document.body.appendchild(div);="" this.operacache[href]="div;" this.sourcecode="undefined;" this.attach="function(processing)" either="" attachfunction="" sourcecode="" present="" on="" attach="" if(typeof="" "function")="" this.attachfunction(processing);="" if(this.sourcecode)="" func="((new" function("return="" ("="" +="" ");"))());="" func(processing);="" throw="" "unable="" instance";="" this.tostring="function()" i;="" code="((function(Sketch) {\n" ");\n";="" for(i="" this.options)="" if(this.options.hasownproperty(i))="" value="this.options[i];" "=" +
-            (typeof value === &apos;string&apos; ? &apos;\" '="" '\"'="" ""="" value)="" ";\n";="" this.imagecache)="" "\");\n";="" todo="" serialize="" fonts="" code;="" aggregate="" source="" single="" file,="" rewrite="" bind="" canvas="" new="" processing(canvas,="" sourcestring).="" @param="" {canvas}="" html="" element="" {string[]}="" array="" files="" loadsketchfromsources="Processing.loadSketchFromSources" =="" function(canvas,="" sources)="" errors="[]," sourcescount="sources.length," ajaxasync(url,="" callback)="" xhr="new" xmlhttprequest();="" xhr.onreadystatechange="function()" (xhr.readystate="==" 4)="" error;="" (xhr.status="" !="=" &&="" xhr.status="" 0)="" error="Invalid XHR status " xhr.status;="" (xhr.responsetext="==" "")="" give="" hint="" when="" loading="" fails="" due="" same-origin="" issues="" file:="" urls="" (="" ("withcredentials"="" xmlhttprequest())="" (new="" xmlhttprequest()).withcredentials="==" window.location.protocol="==" "file:"="" )="" callback(xhr.responsetext,="" error);="" xhr.open("get",="" url,="" true);="" (xhr.overridemimetype)="" xhr.overridemimetype("application="" json");="" xhr.setrequestheader("if-modified-since",="" "fri,="" 01="" jan="" 00:00:00="" gmt");="" cache="" xhr.send(null);="" loadblock(index,="" filename)="" callback(block,="" error)="" code[index]="block;" ++loaded;="" (error)="" errors.push(filename=""> &quot; + error);
+      if (bounds.length <= 1) {
+        result = [];
+        result.length = itemsCount;
+        for (var i = 0; i < itemsCount; ++i) {
+          result[i] = defaultValue;
+        }
+      } else {
+        result = [];
+        var newBounds = bounds.slice(1);
+        for (var j = 0; j < itemsCount; ++j) {
+          result.push(defaultScope.createJavaArray(type, newBounds));
+        }
+      }
+    }
+    return result;
+  };
+
+  // screenWidth and screenHeight are shared by all instances.
+  // and return the width/height of the browser's viewport.
+  defaultScope.defineProperty(defaultScope, 'screenWidth',
+    { get: function() { return window.innerWidth; } });
+
+  defaultScope.defineProperty(defaultScope, 'screenHeight',
+    { get: function() { return window.innerHeight; } });
+
+  return defaultScope;
+};
+
+},{}],6:[function(require,module,exports){
+/**
+ * Finalise the Processing.js object.
+ */
+module.exports = function finalizeProcessing(Processing, options) {
+
+  // unpack options
+  var window = options.window,
+      document = options.document,
+      XMLHttpRequest = window.XMLHttpRequest,
+      noop = options.noop,
+      isDOMPresent = options.isDOMPresent,
+      version = options.version,
+      undef;
+
+  // versioning
+  Processing.version = (version ? version : "@DEV-VERSION@");
+
+  // Share lib space
+  Processing.lib = {};
+
+  /**
+   * External libraries can be added to the global Processing
+   * objects with the `registerLibrary` function.
+   */
+  Processing.registerLibrary = function(name, library) {
+    Processing.lib[name] = library;
+    if(library.hasOwnProperty("init")) {
+      library.init(defaultScope);
+    }
+  };
+
+  /**
+   * This is the object that acts as our version of PApplet.
+   * This can be called as Processing.Sketch() or as
+   * Processing.Sketch(function) in which case the function
+   * must be an already-compiled-to-JS sketch function.
+   */
+  Processing.Sketch = function(attachFunction) {
+    this.attachFunction = attachFunction;
+    this.options = {
+      pauseOnBlur: false,
+      globalKeyEvents: false
+    };
+
+    /* Optional Sketch event hooks:
+     *   onLoad       - parsing/preloading is done, before sketch starts
+     *   onSetup      - setup() has been called, before first draw()
+     *   onPause      - noLoop() has been called, pausing draw loop
+     *   onLoop       - loop() has been called, resuming draw loop
+     *   onFrameStart - draw() loop about to begin
+     *   onFrameEnd   - draw() loop finished
+     *   onExit       - exit() done being called
+     */
+    this.onLoad = noop;
+    this.onSetup = noop;
+    this.onPause = noop;
+    this.onLoop = noop;
+    this.onFrameStart = noop;
+    this.onFrameEnd = noop;
+    this.onExit = noop;
+
+    this.params = {};
+    this.imageCache = {
+      pending: 0,
+      images: {},
+      // Opera requires special administration for preloading
+      operaCache: {},
+      // Specify an optional img arg if the image is already loaded in the DOM,
+      // otherwise href will get loaded.
+      add: function(href, img) {
+        // Prevent muliple loads for an image, in case it gets
+        // preloaded more than once, or is added via JS and then preloaded.
+        if (this.images[href]) {
+          return;
+        }
+
+        if (!isDOMPresent) {
+          this.images[href] = null;
+        }
+
+        // No image in the DOM, kick-off a background load
+        if (!img) {
+          img = new Image();
+          img.onload = (function(owner) {
+            return function() {
+              owner.pending--;
+            };
+          }(this));
+          this.pending++;
+          img.src = href;
+        }
+
+        this.images[href] = img;
+
+        // Opera will not load images until they are inserted into the DOM.
+        if (window.opera) {
+          var div = document.createElement("div");
+          div.appendChild(img);
+          // we can't use "display: none", since that makes it invisible, and thus not load
+          div.style.position = "absolute";
+          div.style.opacity = 0;
+          div.style.width = "1px";
+          div.style.height= "1px";
+          if (!this.operaCache[href]) {
+            document.body.appendChild(div);
+            this.operaCache[href] = div;
+          }
+        }
+      }
+    };
+
+    this.sourceCode = undefined;
+    this.attach = function(processing) {
+      // either attachFunction or sourceCode must be present on attach
+      if(typeof this.attachFunction === "function") {
+        this.attachFunction(processing);
+      } else if(this.sourceCode) {
+        var func = ((new Function("return (" + this.sourceCode + ");"))());
+        func(processing);
+        this.attachFunction = func;
+      } else {
+        throw "Unable to attach sketch to the processing instance";
+      }
+    };
+
+    this.toString = function() {
+      var i;
+      var code = "((function(Sketch) {\n";
+      code += "var sketch = new Sketch(\n" + this.sourceCode + ");\n";
+      for(i in this.options) {
+        if(this.options.hasOwnProperty(i)) {
+          var value = this.options[i];
+          code += "sketch.options." + i + " = " +
+            (typeof value === 'string' ? '\"' + value + '\"' : "" + value) + ";\n";
+        }
+      }
+      for(i in this.imageCache) {
+        if(this.options.hasOwnProperty(i)) {
+          code += "sketch.imageCache.add(\"" + i + "\");\n";
+        }
+      }
+      // TODO serialize fonts
+      code += "return sketch;\n})(Processing.Sketch))";
+      return code;
+    };
+  };
+
+  /**
+   * aggregate all source code into a single file, then rewrite that
+   * source and bind to canvas via new Processing(canvas, sourcestring).
+   * @param {CANVAS} canvas The html canvas element to bind to
+   * @param {String[]} source The array of files that must be loaded
+   */
+  var loadSketchFromSources = Processing.loadSketchFromSources = function(canvas, sources) {
+    var code = [], errors = [], sourcesCount = sources.length, loaded = 0;
+
+    function ajaxAsync(url, callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          var error;
+          if (xhr.status !== 200 && xhr.status !== 0) {
+            error = "Invalid XHR status " + xhr.status;
+          } else if (xhr.responseText === "") {
+            // Give a hint when loading fails due to same-origin issues on file:/// urls
+            if ( ("withCredentials" in new XMLHttpRequest()) &&
+                 (new XMLHttpRequest()).withCredentials === false &&
+                 window.location.protocol === "file:" ) {
+              error = "XMLHttpRequest failure, possibly due to a same-origin policy violation. You can try loading this page in another browser, or load it from http://localhost using a local webserver. See the Processing.js README for a more detailed explanation of this problem and solutions.";
+            } else {
+              error = "File is empty.";
+            }
+          }
+
+          callback(xhr.responseText, error);
+        }
+      };
+      xhr.open("GET", url, true);
+      if (xhr.overrideMimeType) {
+        xhr.overrideMimeType("application/json");
+      }
+      xhr.setRequestHeader("If-Modified-Since", "Fri, 01 Jan 1960 00:00:00 GMT"); // no cache
+      xhr.send(null);
+    }
+
+    function loadBlock(index, filename) {
+      function callback(block, error) {
+        code[index] = block;
+        ++loaded;
+        if (error) {
+          errors.push(filename + " ==> " + error);
         }
         if (loaded === sourcesCount) {
           if (errors.length === 0) {
             try {
-              return new Processing(canvas, code.join(&quot;\n&quot;));
+              return new Processing(canvas, code.join("\n"));
             } catch(e) {
-              console.log(&quot;Processing.js: Unable to execute pjs sketch.&quot;);
+              console.log("Processing.js: Unable to execute pjs sketch.");
               throw e;
             }
           } else {
-            throw &quot;Processing.js: Unable to load pjs sketch files: &quot; + errors.join(&quot;\n&quot;);
+            throw "Processing.js: Unable to load pjs sketch files: " + errors.join("\n");
           }
         }
       }
-      if (filename.charAt(0) === &apos;#&apos;) {
+      if (filename.charAt(0) === '#') {
         // trying to get script from the element
         var scriptElement = document.getElementById(filename.substring(1));
         if (scriptElement) {
           callback(scriptElement.text || scriptElement.textContent);
         } else {
-          callback(&quot;&quot;, &quot;Unable to load pjs sketch: element with id \&apos;&quot; + filename.substring(1) + &quot;\&apos; was not found&quot;);
+          callback("", "Unable to load pjs sketch: element with id \'" + filename.substring(1) + "\' was not found");
         }
         return;
       }
@@ -450,7 +817,7 @@
       ajaxAsync(filename, callback);
     }
 
-    for (var i = 0; i &lt; sourcesCount; ++i) {
+    for (var i = 0; i < sourcesCount; ++i) {
       loadBlock(i, sources[i]);
     }
   };
@@ -459,7 +826,7 @@
    * Automatic initialization function.
    */
   var init = function() {
-    document.removeEventListener(&apos;DOMContentLoaded&apos;, init, false);
+    document.removeEventListener('DOMContentLoaded', init, false);
 
     // before running through init, clear the instances list, to prevent
     // sketch duplication when page content is dynamically swapped without
@@ -467,22 +834,22 @@
     processingInstances = [];
     Processing.instances = processingInstances;
 
-    var canvas = document.getElementsByTagName(&apos;canvas&apos;),
+    var canvas = document.getElementsByTagName('canvas'),
       filenames;
 
-    for (var i = 0, l = canvas.length; i &lt; l; i++) {
+    for (var i = 0, l = canvas.length; i < l; i++) {
       // datasrc and data-src are deprecated.
-      var processingSources = canvas[i].getAttribute(&apos;data-processing-sources&apos;);
+      var processingSources = canvas[i].getAttribute('data-processing-sources');
       if (processingSources === null) {
         // Temporary fallback for datasrc and data-src
-        processingSources = canvas[i].getAttribute(&apos;data-src&apos;);
+        processingSources = canvas[i].getAttribute('data-src');
         if (processingSources === null) {
-          processingSources = canvas[i].getAttribute(&apos;datasrc&apos;);
+          processingSources = canvas[i].getAttribute('datasrc');
         }
       }
       if (processingSources) {
         filenames = processingSources.split(/\s+/g);
-        for (var j = 0; j &lt; filenames.length;) {
+        for (var j = 0; j < filenames.length;) {
           if (filenames[j]) {
             j++;
           } else {
@@ -21275,1232 +21642,4 @@ module.exports = function buildProcessingJS(Browser, testHarness) {
 };
 
 },{"../package.json":2,"./Helpers/ObjectIterator":3,"./Helpers/PConstants":4,"./Helpers/defaultScope":5,"./Helpers/finalizeProcessing":6,"./Helpers/virtEquals":7,"./Helpers/virtHashCode":8,"./Objects/ArrayList":9,"./Objects/Char":10,"./Objects/HashMap":11,"./Objects/PFont":12,"./Objects/PMatrix2D":13,"./Objects/PMatrix3D":14,"./Objects/PShape":15,"./Objects/PShapeSVG":16,"./Objects/PVector":17,"./Objects/XMLAttribute":18,"./Objects/XMLElement":19,"./Objects/webcolors":20,"./P5Functions/JavaProxyFunctions":21,"./P5Functions/Math.js":22,"./P5Functions/commonFunctions":23,"./P5Functions/touchmouse":24,"./Parser/Parser":25,"./Processing":26}]},{},[1])
-;</script></=></r.length;o++)s(r[o]);return>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="2016/10/06/processing入门3/" itemprop="url">
-                  processing入门3
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-10-06T04:10:47+08:00" content="2016-10-06">
-              2016-10-06
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="2016/10/06/processing入门3/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/06/processing入门3/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><script src="Processing&#x5165;&#x95E8;3/processing.js"></script> </p>
-<canvas data-processing-sources="Processing&#x5165;&#x95E8;2/anything/anything.pde"></canvas>
-
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="2016/09/14/Processing入门2/" itemprop="url">
-                  Processing入门<二>
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-14T13:22:08+08:00" content="2016-09-14">
-              2016-09-14
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="2016/09/14/Processing入门2/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/14/Processing入门2/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>&#x8FD9;&#x4E00;&#x8282;&#x7684;&#x76EE;&#x7684;&#x662F;&#x6559;&#x4F1A;&#x5927;&#x5BB6;&#x57FA;&#x672C;&#x7684;&#x56FE;&#x50CF;&#x5904;&#x7406;&#x3002;</p>
-<p>&#x5148;&#x4FEE;&#x5185;&#x5BB9;&#x662F;&#x300A;&#x7231;&#x4E0A;processing&#xFF1A;Getting Started with Processing&#x300B;1&#xFF5E;6&#x7AE0;&#xFF0C;&#x5E0C;&#x671B;&#x5927;&#x5BB6;&#x5728;&#x5B66;&#x4E60;&#x6B64;&#x7AE0;&#x8282;&#x524D;&#x5148;&#x81EA;&#x884C;&#x5B66;&#x4E60;&#x8FD9;&#x516D;&#x7AE0;&#x5185;&#x5BB9;&#x4F5C;&#x4E3A;&#x5165;&#x95E8;&#x57FA;&#x7840;&#xFF0C;&#x7406;&#x89E3;&#x4E86;&#x5D4C;&#x5957;for&#x5FAA;&#x73AF;&#x7684;&#x6982;&#x5FF5;&#xFF0C;&#x7136;&#x540E;&#x5C31;&#x4E0D;&#x96BE;&#x770B;&#x61C2;&#x6211;&#x4EEC;&#x7684;&#x5E94;&#x7528;&#x5B9E;&#x4F8B;&#x4E86;&#x3002;</p>
-<ol>
-<li>&#x9996;&#x5148;&#x8BA9;&#x6211;&#x4EEC;&#x6765;&#x770B;&#x4E00;&#x4E2A;&#x56FE;&#x7247;&#x9759;&#x6001;&#x7684;&#x9A6C;&#x8D5B;&#x514B;&#x6548;&#x679C;&#xFF1A;</li>
-</ol>
-<p><img src="/2016/09/14/Processing&#x5165;&#x95E8;2/mosaic.jpg" alt=""><br></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="2016/09/14/Processing入门2/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="2016/09/03/Rhino入门1/" itemprop="url">
-                  Rhino入门<一>
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-03T22:56:40+08:00" content="2016-09-03">
-              2016-09-03
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="2016/09/03/Rhino入门1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/03/Rhino入门1/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="Rhino"><a href="#Rhino" class="headerlink" title="Rhino"></a>Rhino</h1><p>&#x5F3A;&#x5927;&#x7684;Nurbs&#x5EFA;&#x6A21;&#x5DE5;&#x5177;&#xFF0C;&#x5E76;&#x4E14;&#x6709;&#x7075;&#x6D3B;&#x7684;&#x6269;&#x5C55;&#x7A0B;&#x5E8F;&#x63A5;&#x53E3;&#x3002;&#x901A;&#x8FC7;&#x5B66;&#x4E60;&#x5B83;&#xFF0C;&#x4E0D;&#x4EC5;&#x80FD;&#x63A2;&#x7D22;&#x4E30;&#x5BCC;&#x7684;&#x66F2;&#x9762;&#x9020;&#x578B;&#xFF0C;&#x8FD8;&#x53EF;&#x4EE5;&#x5B66;&#x4E60;&#x53C2;&#x6570;&#x5316;&#x8BBE;&#x8BA1;&#x53CA;&#x5176;&#x5B83;&#x3002;&#x5F53;&#x7136;&#x8FD9;&#x91CC;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x4E00;&#x4E9B;&#x57FA;&#x672C;&#x7406;&#x89E3;&#x548C;&#x80CC;&#x666F;&#x77E5;&#x8BC6;&#xFF0C;&#x867D;&#x7136;Nurbs&#x662F;&#x8BA1;&#x7B97;&#x673A;&#x6280;&#x672F;&#x53D1;&#x5C55;&#x4EE5;&#x540E;&#x51FA;&#x73B0;&#x7684;&#x7B97;&#x6CD5;&#xFF0C;&#x7136;&#x800C;&#x5F88;&#x591A;&#x76F8;&#x5173;&#x6982;&#x5FF5;&#x53CA;&#x5F62;&#x5F0F;&#x65E9;&#x5C31;&#x51FA;&#x73B0;&#x8FC7;&#xFF0C;&#x73B0;&#x5728;&#x57FA;&#x672C;&#x4ECB;&#x7ECD;&#x4E00;&#x4E0B;&#x3002;</p>
-<h1 id="&#x80CC;&#x666F;&#x77E5;&#x8BC6;&#xFF1A;"><a href="#&#x80CC;&#x666F;&#x77E5;&#x8BC6;&#xFF1A;" class="headerlink" title="&#x80CC;&#x666F;&#x77E5;&#x8BC6;&#xFF1A;"></a>&#x80CC;&#x666F;&#x77E5;&#x8BC6;&#xFF1A;</h1><h2 id="&#x4EC0;&#x4E48;&#x662F;Nurbs"><a href="#&#x4EC0;&#x4E48;&#x662F;Nurbs" class="headerlink" title="&#x4EC0;&#x4E48;&#x662F;Nurbs"></a>&#x4EC0;&#x4E48;&#x662F;Nurbs</h2><p>&#x5168;&#x540D;&#x53EB;&#xFF1A;&#x975E;&#x5747;&#x5300;&#x6709;&#x7406;B&#x6837;&#x6761;&#x66F2;&#x7EBF;(Non-Uniform Rational [Basic/Basis] Spline )<br><img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Spline01.gif" alt=""><br></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="2016/09/03/Rhino入门1/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="2016/09/03/Processing入门1/" itemprop="url">
-                  Processing入门<一>
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-03T05:04:13+08:00" content="2016-09-03">
-              2016-09-03
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="2016/09/03/Processing入门1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/03/Processing入门1/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="1-&#x8FD0;&#x884C;&#x73AF;&#x5883;&#x7684;&#x914D;&#x7F6E;"><a href="#1-&#x8FD0;&#x884C;&#x73AF;&#x5883;&#x7684;&#x914D;&#x7F6E;" class="headerlink" title="1. &#x8FD0;&#x884C;&#x73AF;&#x5883;&#x7684;&#x914D;&#x7F6E;"></a>1. &#x8FD0;&#x884C;&#x73AF;&#x5883;&#x7684;&#x914D;&#x7F6E;</h1><p>&#x9996;&#x5148;&#x4ECE;<a href="https://processing.org/download/">Processing&#x5B98;&#x7F51;&#x4E0B;&#x8F7D;</a>&#xFF0C;&#x4E0B;&#x8F7D;&#x5B89;&#x88C5;&#x5305;&#xFF0C;&#x53C2;&#x770B;&#x4E0B;&#x56FE;&#x7EA2;&#x8272;&#x7BAD;&#x5934;&#xFF0C;&#x9009;&#x62E9;no donation&#x51FA;&#x73B0;&#x4E0B;&#x8F7D;&#x6309;&#x94AE;&#xFF0C;&#x7EE7;&#x7EED;&#x9009;&#x62E9;&#x8FDB;&#x884C;&#x4E0B;&#x8F7D;&#xFF0C;<br><img src="/2016/09/03/Processing&#x5165;&#x95E8;1/download.png" alt=""><br>&#x7136;&#x540E;&#xFF0C;&#x6839;&#x636E;&#x672C;&#x673A;&#x672C;&#x673A;&#x7C7B;&#x578B;&#x9009;&#x62E9;&#x5B89;&#x88C5;&#x5305;&#xFF0C;Windows&#x73B0;&#x5728;&#x4E00;&#x822C;&#x90FD;&#x662F;64&#x4F4D;&#xFF08;&#x4E0D;&#x653E;&#x5FC3;&#x53EF;&#x4EE5;&#x67E5;&#x770B;&#x4E00;&#x4E0B;&#x81EA;&#x5DF1;&#x7684;&#x7CFB;&#x7EDF;&#xFF09;&#xFF0C;32&#x4F4D;&#x662F;&#x4E3A;&#x4E86;&#x517C;&#x5BB9;&#x8001;&#x673A;&#x5668;&#xFF0C;&#x6240;&#x4EE5;64&#x548C;32&#x4F4D;&#x7CFB;&#x7EDF;&#x90FD;&#x53EF;&#x4EE5;&#x88C5;&#xFF0C;Mac OS X&#x53EA;&#x6709;&#x4E00;&#x79CD;&#x9009;&#x62E9;&#xFF0C;&#x7B80;&#x5355;&#x3002;&#x603B;&#x4E4B;&#x4E0B;&#x8F7D;&#x4E4B;&#x540E;&#x53CC;&#x51FB;&#x5C31;&#x88C5;&#x597D;&#x4E86;&#x3002;<br></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="2016/09/03/Processing入门1/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="2016/08/31/Python入门/" itemprop="url">
-                  Python入门
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-31T22:20:29+08:00" content="2016-08-31">
-              2016-08-31
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="2016/08/31/Python入门/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/31/Python入门/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p><img src="/2016/08/31/Python&#x5165;&#x95E8;/python.png" alt=""><br>&#x4ECA;&#x5929;python&#x7B2C;&#x4E00;&#x8BB2;&#xFF0C;&#x6211;&#x4E0D;&#x8BB2;&#x5982;&#x4F55;&#x8BA9;python&#x8F93;&#x51FA;<code>hello, world</code>&#x6211;&#x60F3;&#x4ECE;&#x81EA;&#x5DF1;&#x7684;&#x7ECF;&#x5386;&#x51FA;&#x53D1;&#x8C08;&#x8C08;&#x4E3A;&#x4EC0;&#x4E48;&#x6211;&#x89C9;&#x5F97;&#x4EBA;&#x4EBA;&#x90FD;&#x5E94;&#x8BE5;&#x5B66;&#x4E60;&#x7F16;&#x7A0B;&#x3002;&#x60F3;&#x770B;&#x6559;&#x7A0B;&#x7684;&#xFF0C;&#x8BF7;&#x76F4;&#x63A5;&#x8DF3;&#x5165;&#x4E0B;&#x4E00;&#x8282;&#x3002;</p>
-<p>&#x5BF9;&#x6211;&#x6765;&#x8BF4;&#xFF0C;</p>
-<blockquote>
-<p>&#x9996;&#x5148;&#x662F;&#x56E0;&#x4E3A;&#x7F16;&#x5199;&#x7A0B;&#x5E8F;&#x5F88;&#x597D;&#x73A9;&#x3002;</p>
-</blockquote>
-<p>&#x7F16;&#x7A0B;&#x5C31;&#x50CF;&#x5728;&#x73A9;&#x4E00;&#x79CD;&#x6781;&#x5BCC;&#x521B;&#x9020;&#x6027;&#x7684;&#x903B;&#x8F91;&#x63A8;&#x7406;&#x6E38;&#x620F;&#xFF0C;&#x800C;&#x4E14;&#x5728;&#x8FD9;&#x4E2A;&#x5F00;&#x653E;&#x6027;&#x7684;&#x6E38;&#x620F;&#x91CC;&#xFF0C;&#x9700;&#x8981;&#x89E3;&#x7B54;&#x7684;&#x4E0D;&#x662F;&#x522B;&#x4EBA;&#x8BBE;&#x8BA1;&#x597D;&#x7684;&#x6E38;&#x620F;&#x548C;&#x8C1C;&#x9898;&#xFF0C;&#x4F60;&#x53EF;&#x4EE5;&#x8FD0;&#x7528;&#x4EE3;&#x7801;&#xFF0C;&#x81EA;&#x5DF1;&#x7EC4;&#x7EC7;&#x5404;&#x79CD;&#x4E8B;&#x7269;&#xFF0C;&#x8BA9;&#x5B83;&#x4EEC;&#x81EA;&#x52A8;&#x5316;&#x8FD0;&#x884C;&#xFF0C;&#x521B;&#x9020;&#x51FA;&#x5C5E;&#x4E8E;&#x81EA;&#x5DF1;&#x4E16;&#x754C;&#xFF0C;&#x8FD9;&#x79CD;&#x611F;&#x89C9;&#x771F;&#x662F;&#x592A;&#x68D2;&#x4E86;&#x3002;<br></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="2016/08/31/Python入门/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="2016/08/30/Hexo建站教程/" itemprop="url">
-                  Hexo建站教程，Git配置指南
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-30T23:23:35+08:00" content="2016-08-30">
-              2016-08-30
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="2016/08/30/Hexo建站教程/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/30/Hexo建站教程/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>&#x58F0;&#x660E;&#xFF1A;&#x672C;&#x6587;&#x57FA;&#x4E8E;MacOS&#xFF0C;windows&#x7C7B;&#x4F3C;&#xFF0C;&#x4F46;&#x53EF;&#x80FD;&#x7565;&#x6709;&#x5DEE;&#x5F02;&#x3002;</p>
-<p>&#x5199;&#x5728;&#x6700;&#x524D;&#x9762;&#xFF1A;</p>
-<p>&#x5173;&#x4E8E;Git&#x5B89;&#x88C5;&#x53CA;Hexo&#x7684;&#x6559;&#x7A0B;&#x5F88;&#x591A;&#xFF0C;&#x5B98;&#x65B9;&#x6587;&#x6863;&#x4E5F;&#x5199;&#x5F97;&#x5341;&#x5206;&#x6E05;&#x6670;&#xFF0C;&#x5BF9;&#x4E8E;&#x719F;&#x6089;linux&#x7684;&#x7A0B;&#x5E8F;&#x5458;&#x6765;&#x8BF4;&#x6309;&#x7167;&#x5B98;&#x65B9;&#x7F51;&#x7AD9;&#x8BF4;&#x660E;&#x914D;&#x7F6E;&#x7AD9;&#x70B9;&#x4E5F;&#x5C31;&#x662F;&#x51E0;&#x884C;&#x547D;&#x4EE4;&#x7B26;&#x7684;&#x4E8B;&#x60C5;&#x3002;&#x90A3;&#x6211;&#x4E3A;&#x4EC0;&#x4E48;&#x8FD8;&#x8981;&#x5199;&#x8FD9;&#x7BC7;&#x6587;&#x7AE0;&#x5462;&#xFF1F;&#x56E0;&#x4E3A;&#x7A0B;&#x5E8F;&#x5458;&#x548C;&#x666E;&#x901A;&#x7528;&#x6237;&#x7684;&#x5DEE;&#x522B;&#x4E0D;&#x6B62;&#x662F;&#x5728;&#x4E8E;&#x5177;&#x4F53;&#x7684;&#x4EE3;&#x7801;&#x7F16;&#x5199;&#x4E0A;&#xFF0C;&#x8FD8;&#x6709;&#x89E3;&#x51B3;&#x95EE;&#x9898;&#x7684;&#x601D;&#x7EF4;&#x65B9;&#x5F0F;&#xFF0C;&#x8BED;&#x4E49;&#x7684;&#x7406;&#x89E3;&#xFF1B;&#x8FD9;&#x4E9B;&#x90FD;&#x662F;&#x521A;&#x5165;&#x95E8;&#x7684;&#x5C0F;&#x767D;&#x7528;&#x6237;&#x5E76;&#x4E0D;&#x5177;&#x5907;&#x7684;&#x3002;&#x5373;&#x4F7F;&#x7167;&#x672C;&#x5BA3;&#x79D1;&#x7684;&#x64CD;&#x4F5C;&#xFF0C;&#x7531;&#x4E8E;&#x6BCF;&#x4E2A;&#x4EBA;&#x7684;&#x7CFB;&#x7EDF;&#x73AF;&#x5883;&#x603B;&#x6709;&#x5DEE;&#x522B;&#xFF0C;&#x8FD8;&#x662F;&#x53EF;&#x80FD;&#x4F1A;&#x9047;&#x5230;&#x5B89;&#x88C5;&#x8BF4;&#x660E;&#x672A;&#x66FE;&#x63D0;&#x5230;&#x7684;&#x95EE;&#x9898;&#xFF0C;&#x800C;&#x4E14;&#x5C31;&#x7B97;&#x6CA1;&#x6709;&#x9047;&#x5230;&#x7279;&#x6B8A;&#x95EE;&#x9898;&#xFF0C;&#x5B89;&#x88C5;&#x8BF4;&#x660E;&#x4E2D;&#x6709;&#x4E00;&#x53E5;&#x4E0D;&#x7406;&#x89E3;&#x5C31;&#x4F1A;&#x5361;&#x4F4F;&#xFF0C;&#x6709;&#x65F6;&#x60F3;&#x641C;&#x7D22;&#x95EE;&#x9898;&#x7B54;&#x6848;&#x90FD;&#x60F3;&#x4E0D;&#x5230;&#x5408;&#x9002;&#x7684;&#x5173;&#x952E;&#x8BCD;&#x3002;&#x56E0;&#x6B64;&#xFF0C;&#x6211;&#x60F3;&#x5199;&#x4E00;&#x7BC7;&#x8BA9;&#x5B8C;&#x5168;0&#x57FA;&#x7840;&#x7684;&#x4EBA;&#x90FD;&#x80FD;&#x770B;&#x61C2;&#x7684;&#x5B89;&#x88C5;&#x6307;&#x5BFC;&#xFF0C;&#x4ECE;&#x800C;&#x5B66;&#x4F1A;&#x5728;&#x6700;&#x5927;&#x7684;&#x5206;&#x4EAB;&#x5E73;&#x53F0;Github&#x4E0A;&#x5F00;&#x521B;&#x5C5E;&#x4E8E;&#x81EA;&#x5DF1;&#x7684;&#x77E5;&#x8BC6;&#x8282;&#x70B9;&#x3002;</p>
-<p>&#x4E07;&#x4E8B;&#x603B;&#x6709;&#x5F00;&#x59CB;&#xFF0C;&#x66FE;&#x7ECF;&#x6211;&#x4EEC;&#x90FD;&#x662F;&#x5C0F;&#x767D;&#x3002;</p>
-<h2 id="1-Hexo&#x662F;&#x4EC0;&#x4E48;"><a href="#1-Hexo&#x662F;&#x4EC0;&#x4E48;" class="headerlink" title="1. Hexo&#x662F;&#x4EC0;&#x4E48;"></a>1. Hexo&#x662F;&#x4EC0;&#x4E48;</h2><p>hexo&#x662F;&#x4E00;&#x4E2A;&#x57FA;&#x4E8E;Node.js&#x7684;&#x9759;&#x6001;&#x535A;&#x5BA2;&#x7A0B;&#x5E8F;&#xFF0C;&#x53EF;&#x4EE5;&#x65B9;&#x4FBF;&#x7684;&#x751F;&#x6210;&#x9759;&#x6001;&#x7F51;&#x9875;&#x6258;&#x7BA1;&#x5728;github&#x4E0A;&#x3002;</p>
-<h2 id="2-Hexo&#x7684;&#x5B89;&#x88C5;"><a href="#2-Hexo&#x7684;&#x5B89;&#x88C5;" class="headerlink" title="2. Hexo&#x7684;&#x5B89;&#x88C5;"></a>2. Hexo&#x7684;&#x5B89;&#x88C5;</h2><h3 id="2-1-&#x5B89;&#x88C5;Node-js"><a href="#2-1-&#x5B89;&#x88C5;Node-js" class="headerlink" title="2.1 &#x5B89;&#x88C5;Node.js"></a>2.1 &#x5B89;&#x88C5;Node.js</h3><p>&#x56E0;&#x4E3A;Hexo&#x662F;&#x57FA;&#x4E8E;Node.js&#x7684;&#xFF0C;&#x6240;&#x4EE5;&#x8981;&#x9996;&#x5148;&#x4ECE;&#x5B98;&#x7F51;&#x5B89;&#x88C5;<a href="https://nodejs.org/en/">Node.js</a>&#x3002;&#x4E0B;&#x8F7D;&#x5B89;&#x88C5;&#x5B8C;&#x6210;&#x540E;&#xFF0C;npm&#x5C31;&#x5E94;&#x8BE5;&#x88C5;&#x597D;&#x4E86;&#x3002;</p>
-<blockquote>
-<p>&#x8FD9;&#x91CC;&#x53EF;&#x4EE5;&#x5728;terminal&#x4E2D;&#x9A8C;&#x8BC1;&#x662F;&#x5426;&#x5B89;&#x88C5;&#x6210;&#x529F;&#xFF0C;&#x5982;&#x679C;&#x6210;&#x529F;&#x4F1A;&#x663E;&#x793A;&#x7248;&#x672C;&#x53F7;&#x3002;<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">node -v</div><div class="line">npm -v</div></pre></td></tr></table></figure></p>
-</blockquote>
-          <div class="post-more-link text-center">
-            <a class="btn" href="2016/08/30/Hexo建站教程/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="2016/08/30/优秀站点及工具推荐/" itemprop="url">
-                  优秀站点及工具推荐
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-30T21:26:58+08:00" content="2016-08-30">
-              2016-08-30
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="2016/08/30/优秀站点及工具推荐/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/30/优秀站点及工具推荐/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="1-&#x5728;&#x7EBF;&#x5B66;&#x4E60;Python&#x7684;&#x597D;&#x7F51;&#x7AD9;"><a href="#1-&#x5728;&#x7EBF;&#x5B66;&#x4E60;Python&#x7684;&#x597D;&#x7F51;&#x7AD9;" class="headerlink" title="1. &#x5728;&#x7EBF;&#x5B66;&#x4E60;Python&#x7684;&#x597D;&#x7F51;&#x7AD9;"></a>1. &#x5728;&#x7EBF;&#x5B66;&#x4E60;Python&#x7684;&#x597D;&#x7F51;&#x7AD9;</h2><p><a href="http://www.datahub.top/">{DATA}HUB</a>&#x63D0;&#x4F9B;&#x53EF;&#x4EE5;&#x5728;&#x7EBF;&#x4F7F;&#x7528;&#x7684;ipython notebook&#xFF0C;&#x4EE5;&#x53CA;&#x8BBE;&#x8BA1;&#x7CBE;&#x826F;&#x7684;&#x4E92;&#x52A8;&#x6559;&#x7A0B;&#xFF0C;&#x975E;&#x5E38;&#x65B9;&#x4FBF;&#x8FB9;&#x5B66;&#x4E60;&#x8FB9;&#x7EC3;&#x4E60;&#xFF0C;&#x63A8;&#x8350;&#x3002;<br><img src="/2016/08/30/&#x4F18;&#x79C0;&#x7AD9;&#x70B9;&#x53CA;&#x5DE5;&#x5177;&#x63A8;&#x8350;/datahub.png" alt=""><br></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="2016/08/30/优秀站点及工具推荐/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="2016/08/30/Markdown写作及工具/" itemprop="url">
-                  Markdown写作及工具
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-30T11:49:33+08:00" content="2016-08-30">
-              2016-08-30
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="2016/08/30/Markdown写作及工具/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/30/Markdown写作及工具/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>&#x4E3A;&#x4F55;&#x9009;&#x62E9;Markdown</p>
-</blockquote>
-<p><strong>Markdown</strong>&#x662F;&#x4E00;&#x79CD;&#x8F7B;&#x91CF;&#x7EA7;&#x7684;&#x6587;&#x672C;&#x6807;&#x8BB0;&#x8BED;&#x8A00;&#xFF0C;&#x53EF;&#x4EE5;&#x4EE5;&#x5F88;&#x5C11;&#x7684;&#x6807;&#x8BB0;&#xFF0C;&#x5B9E;&#x73B0;&#x7CBE;&#x7B80;&#x7684;&#x6392;&#x7248;&#x6548;&#x679C;&#x3002;&#x4ECE;&#x800C;&#x8BA9;&#x4EBA;&#x5728;&#x6EE1;&#x8DB3;&#x4FE1;&#x606F;&#x5C42;&#x6B21;&#x5316;&#x7684;&#x57FA;&#x672C;&#x5199;&#x4F5C;&#x9700;&#x6C42;&#x540E;&#xFF0C;&#x66F4;&#x597D;&#x7684;&#x628A;&#x96C6;&#x4E2D;&#x7CBE;&#x529B;&#x5230;&#x5199;&#x4F5C;&#x5185;&#x5BB9;&#x4E0A;&#x9762;&#x6765;&#x3002;</p>
-<p>&#x4E8B;&#x5B9E;&#x4E0A;&#xFF0C;&#x5BF9;&#x4E8E;&#x4E00;&#x4E2A;&#x7A0B;&#x5E8F;&#x5458;&#x6765;&#x8BF4;&#xFF0C;&#x4E24;&#x4E2A;`&#x5C31;&#x80FD;&#x4E0D;&#x7834;&#x574F;&#x683C;&#x5F0F;&#x7684;&#x653E;&#x7F6E;&#x4EE3;&#x7801;&#xFF0C;&#x5F88;&#x591A;&#x5E73;&#x53F0;&#x8FD8;&#x80FD;&#x5BF9;&#x5176;&#x6E32;&#x67D3;&#x81EA;&#x52A8;&#x9AD8;&#x4EAE;&#xFF0C;Markdown&#x4EE5;&#x5176;&#x901A;&#x7528;&#xFF0C;&#x7075;&#x6D3B;&#xFF0C;&#x53CA;&#x4E30;&#x5BCC;&#x6027;&#xFF0C;&#x6210;&#x4E3A;&#x4EE3;&#x7801;&#x6587;&#x5B57;&#x6DF7;&#x6392;&#x7684;&#x6700;&#x4F73;&#x9009;&#x62E9;&#x3002;</p>
-<blockquote>
-<p>&#x5199;&#x4F5C;&#x5DE5;&#x5177;&#x7684;&#x9009;&#x62E9;</p>
-</blockquote>
-<p><strong>&#x672C;&#x5730;&#x7AEF;</strong>&#xFF1A;&#x76EE;&#x524D;&#x6211;&#x7ECF;&#x5E38;&#x4F1A;&#x7528;&#x5230;&#x7684;markdown&#x5DE5;&#x5177;&#x662F;<code>ipython notebook</code>&#xFF0C;&#x5E94;&#x8BE5;&#x8BF4;&#xFF0C;&#x5B83;&#x5728;&#x77E5;&#x8BC6;&#x96C6;&#x6210;&#x65B9;&#x9762;&#x7684;&#x7EFC;&#x5408;&#x5B9E;&#x529B;&#x662F;&#x6700;&#x5F3A;&#x5927;&#x7684;&#xFF0C;&#x53EF;&#x4EE5;&#x4F5C;&#x4E3A;&#x4EE3;&#x7801;&#x672C;&#x5730;&#x7814;&#x53D1;&#x7684;&#x6838;&#x5FC3;&#x3002;</p>
-<p><strong>&#x7F51;&#x7EDC;&#x7AEF;</strong>&#xFF1A;&#x7F51;&#x7EDC;&#x7AEF;&#x7684;&#x91CD;&#x70B9;&#x5728;&#x4E8E;&#x77E5;&#x8BC6;&#x5206;&#x4EAB;&#x548C;&#x534F;&#x540C;&#x5F00;&#x53D1;&#xFF0C;&#x4E0D;&#x4FA7;&#x91CD;&#x4E8E;&#x4EE3;&#x7801;&#x8C03;&#x8BD5;&#xFF0C;&#x800C;&#x5BF9;&#x4FE1;&#x606F;&#x5448;&#x73B0;&#x6709;&#x66F4;&#x7075;&#x6D3B;&#x7684;&#x89C6;&#x6548;&#x9700;&#x6C42;&#xFF0C;&#x6240;&#x4EE5;<code>github&#xFF0B;&#x81EA;&#x5DF1;&#x642D;&#x5EFA;&#x6280;&#x672F;&#x535A;&#x5BA2;</code>&#x7684;&#x7EC4;&#x5408;&#x662F;&#x66F4;&#x65B9;&#x4FBF;&#x7684;&#x9009;&#x62E9;&#x3002;&#x76EE;&#x524D;&#x8FD9;&#x4E2A;&#x535A;&#x5BA2;&#x5C31;&#x662F;&#x4F7F;&#x7528;<a href="http://www.cnblogs.com/wangguchangqing/p/5271856.html" target="_blank" rel="external">Hexo</a>&#xFF0B;<a href="http://theme-next.iissnan.com/" target="_blank" rel="external">NexT</a>&#x4E3B;&#x9898;&#xFF0C;&#x901A;&#x8FC7;git&#x90E8;&#x7F72;&#x7684;&#x3002;</p>
-<p>&#x76EE;&#x524D;&#xFF0C;&#x56E0;&#x4E3A;&#x53EF;&#x4EE5;&#x5DE6;&#x53F3;&#x53CC;&#x5C4F;&#x5B9E;&#x65F6;&#x9884;&#x89C8;&#xFF0C;&#x6700;&#x597D;&#x7684;&#x5728;&#x7EBF;markdown&#x6587;&#x672C;&#x7F16;&#x8F91;&#x5668;&#x5F53;&#x5C5E;<a href="http://www.jianshu.com/" target="_blank" rel="external">&#x7B80;&#x4E66;</a>&#xFF0C;&#x5BF9;&#x4E8E;&#x53CA;&#x65F6;&#x8C03;&#x6574;&#x6392;&#x7248;&#x6548;&#x679C;&#x6765;&#x8BF4;&#x8FD8;&#x662F;&#x975E;&#x5E38;&#x65B9;&#x4FBF;&#x7684;&#x3002;&#x800C;&#x6211;&#x5728;&#x672C;&#x5730;&#x5E38;&#x7528;&#x7684;ipython notebook&#x56E0;&#x4E3A;&#x957F;&#x671F;&#x8C03;&#x8BD5;&#x7684;&#x9700;&#x8981;&#x88AB;&#x6211;&#x6539;&#x6210;&#x4E86;&#x81EA;&#x5B9A;&#x4E49;&#x9ED1;&#x5E95;&#x8272;&#x9AD8;&#x4EAE;&#x7684;CSS&#xFF0C;&#x548C;&#x53D1;&#x5E03;&#x6548;&#x679C;&#x5DEE;&#x5F02;&#x5F88;&#x5927;&#xFF1B;sublime text&#x867D;&#x7136;&#x53EF;&#x4EE5;&#x4E00;&#x952E;&#x9884;&#x89C8;&#xFF0C;&#x4E5F;&#x7EC8;&#x7A76;&#x6CA1;&#x6709;&#x5B9E;&#x65F6;&#x7684;&#x65B9;&#x4FBF;&#xFF0C;&#x56E0;&#x6B64;&#x7B80;&#x4E66;&#x4E5F;&#x662F;&#x4E00;&#x4E2A;&#x4E0D;&#x9519;&#x7684;&#x9009;&#x62E9;&#x3002;</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="2016/08/30/Test/" itemprop="url">
-                  写在一切的开始
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-30T08:13:26+08:00" content="2016-08-30">
-              2016-08-30
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="2016/08/30/Test/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/30/Test/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p> &#x4E3A;&#x4E86;&#x65B9;&#x4FBF;Markdown&#x5199;&#x4F5C;&#xFF0C;&#x77E5;&#x8BC6;&#x5F00;&#x6E90;&#x4E0E;&#x5206;&#x4EAB;&#xFF0C;&#x6211;&#x7279;&#x5730;&#x5728;github&#x4E0A;&#x9762;&#x5EFA;&#x7ACB;&#x4E86;&#x4E00;&#x4E2A;Hexo&#x535A;&#x5BA2;&#x3002;<br> &#x56E0;&#x4E3A;&#x4E5F;&#x662F;&#x521A;&#x5165;&#x95E8;Hexo&#xFF0C;&#x6211;&#x5148;&#x5728;&#x6B64;&#x8BB0;&#x4E0B;&#x51E0;&#x4E2A;&#x5173;&#x4E8E;&#x66F4;&#x65B0;&#x7684;&#x91CD;&#x8981;&#x547D;&#x4EE4;&#xFF0C;&#x65B9;&#x4FBF;&#x81EA;&#x5DF1;&#x4F7F;&#x7528;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x6765;&#x8865;&#x5B8C;&#x5EFA;&#x7AD9;&#x8FC7;&#x7A0B;&#x3002;</p>
-<p>&#x65B0;&#x5EFA;&#x6587;&#x7AE0;&#xFF1A;&#x5728;terminal&#x91CC;&#x9762;&#x8F93;&#x5165;<br> <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo n <span class="string">&quot;articlename&quot;</span></div></pre></td></tr></table></figure></p>
-<p>&#x4E5F;&#x5C31;&#x662F;hexo new ,&#x4F1A;&#x5C06;&#x65B0;&#x6587;&#x7AE0;&#x751F;&#x6210;&#x5728;<code>source/_posts/articlename.md</code></p>
-<p> &#x66F4;&#x65B0;git&#xFF1A;</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo g -d</div></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-  </section>
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="page/2/">2</a><a class="extend next" rel="next" href="page/2/"><i class="fa fa-angle-right"></i></a>
-  </nav>
-
-
-
-          </div>
-          
-
-
-          
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-inner">
-
-      
-
-      
-
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <img class="site-author-image" itemprop="image"
-               src="images/avatar.gif"
-               alt="Ning H" />
-          <p class="site-author-name" itemprop="name">Ning H</p>
-          <p class="site-description motion-element" itemprop="description"></p>
-        </div>
-        <nav class="site-state motion-element">
-          <div class="site-state-item site-state-posts">
-            <a href="/archives">
-              <span class="site-state-item-count">12</span>
-              <span class="site-state-item-name">日志</span>
-            </a>
-          </div>
-
-          
-
-          
-            <div class="site-state-item site-state-tags">
-              <a href="/tags">
-                <span class="site-state-item-count">12</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
-          
-
-        </nav>
-
-        
-
-        <div class="links-of-author motion-element">
-          
-        </div>
-
-        
-        
-
-        
-        
-
-      </section>
-
-      
-
-    </div>
-  </aside>
-
-
-        
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright" >
-  
-  &copy; 
-  <span itemprop="copyrightYear">2016</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Ning H</span>
-</div>
-
-<div class="powered-by">
-  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
-</div>
-
-<div class="theme-info">
-  主题 -
-  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Pisces
-  </a>
-</div>
-
-
-        
-
-<div class="busuanzi-count">
-
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
-  
-    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
-  
-
-  
-    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
-  
-  
-</div>
-
-
-
-        
-      </div>
-    </footer>
-
-    <div class="back-to-top">
-      <i class="fa fa-arrow-up"></i>
-    </div>
-  </div>
-
-  
-
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
-  }
-</script>
-
-
-
-
-
-
-
-
-
-  
-
-
-
-  
-  <script type="text/javascript" src="vendors/jquery/index.js?v=2.1.3"></script>
-
-  
-  <script type="text/javascript" src="vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-
-  
-  <script type="text/javascript" src="vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-
-  
-  <script type="text/javascript" src="vendors/velocity/velocity.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
-
-  
-  <script type="text/javascript" src="vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-
-
-  
-
-
-  <script type="text/javascript" src="js/src/utils.js?v=5.0.1"></script>
-
-  <script type="text/javascript" src="js/src/motion.js?v=5.0.1"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="js/src/affix.js?v=5.0.1"></script>
-
-  <script type="text/javascript" src="js/src/schemes/pisces.js?v=5.0.1"></script>
-
-
-
-  
-
-  
-
-
-  <script type="text/javascript" src="js/src/bootstrap.js?v=5.0.1"></script>
-
-
-
-  
-
-  
-    
-  
-
-  <script type="text/javascript">
-    var duoshuoQuery = {short_name:"ngh"};
-    (function() {
-      var ds = document.createElement('script');
-      ds.type = 'text/javascript';ds.async = true;
-      ds.id = 'duoshuo-script';
-      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-      ds.charset = 'UTF-8';
-      (document.getElementsByTagName('head')[0]
-      || document.getElementsByTagName('body')[0]).appendChild(ds);
-    })();
-  </script>
-
-  
-    
-    <script src="vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
-    <script src="js/src/hook-duoshuo.js"></script>
-  
-
-
-
-
-
-
-  
-  
-
-  
-
-  
-
-  
-
-</body>
-</html>
+;
